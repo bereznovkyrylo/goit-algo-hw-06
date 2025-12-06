@@ -7,11 +7,7 @@ AddressBook: Клас для зберігання та управління за
 """
 from collections import UserDict
 
-def edit_phone(self,old_phone,new_phone):
-    for phone in self.phones:
-        if phone.value==old_phone:
-            phone.value=new_phone
-            break
+
 class Record():
     def __init__(self,name):
         self.name=Name(name)
@@ -85,7 +81,7 @@ class Name(Field):
     ...
 
 class Field():
-    
+
     def __init__(self,value):
         self.value=value
 
