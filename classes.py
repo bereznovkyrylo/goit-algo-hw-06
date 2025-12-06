@@ -7,6 +7,11 @@ AddressBook: Клас для зберігання та управління за
 """
 from collections import UserDict
 
+def edit_phone(self,old_phone,new_phone):
+    for phone in self.phones:
+        if phone.value==old_phone:
+            phone.value=new_phone
+            break
 class Record():
     def __init__(self,name):
         self.name=Name(name)
@@ -14,40 +19,54 @@ class Record():
 
     def add_phone(self,phone:str)->None:
         self.phones.append(Phone(phone))
+
     def edit_phone(self,old_phone,new_phone):
-        for phone in self.phones:
-            if phone.value==old_phone:
-                phone.value=new_phone
-                break
-        else:
-            raise ValueError
+        
+        searched_phone=self.find_phone(old_phone)
+
+        if searched_phone is None:
+            raise ValueError('Phone not found')
+        if not searched_phone.is_valid_phone(new_phone):
+            raise ValueError('Phone number is not valid')
+        
+        searched_phone.value=new_phone
+
+        
     def find_phone(self,searched_phone):
         for phone in self.phones:
             if phone.value==searched_phone:
                 return phone
         else:
             return None
+        
     def remove_phone(self,phone):
-        self.phones=filter(lambda x :x.value!=phone,self.phones) 
+        searched_phone=self.find_phone(phone)
+        if searched_phone is not None:
+            self.data.pop(searched_phone)
+        else:
+            raise ValueError('Phone not found')
 
-
-    def __str__(self): 
+    def __str__(self):
         return f"Contact name: {self.name.value}, phones: {'; '.join(phone.value for phone in self.phones)};"
 
 
+
 class AddressBook(UserDict):
+
     def add_record(self,record:Record):
         name=record.name.value
         self.data[name]=record
-    def find(self,name):
-        for key in self.data:
-            if key==name:
-                return self.data[key]
-        return None
-    def delete(self,name):
-        data=self.data 
-        self.data={key:data[key] for key in data if key!=name}
 
+    def find(self,name):
+        return self.data.get(name)
+    
+    def delete(self,name):
+        searched_address=self.find(name)
+
+        if searched_address is not None:
+            self.data.pop(name)
+        else :
+            raise ValueError('No such address')
 
     def __str__(self):
         return '\n'.join(f'{str(value)}' for value in self.data.values())
@@ -55,16 +74,32 @@ class AddressBook(UserDict):
 
 
 class Field():
+
     def __init__(self,value):
         self.value=value
+
     def __str__(self):
         return str(self.value)
-    
+
 class Name(Field):
     ...
+
+class Field():
+    
+    def __init__(self,value):
+        self.value=value
+
+    def __str__(self):
+        return str(self.value)
 class Phone(Field):
-    def __init__(self,phone:str):
-        if len(phone)!=10:
-            raise ValueError
-        super().__init__(phone)
+    phone_number_length=10
+
+    def __init__(self,phone:str): 
+        if self.is_valid_phone(phone):
+            super().__init__(phone)
+        else:    
+            raise ValueError('Wrong phone number')
+        
+    def is_valid_phone(cls,phone:str)->bool:
+        return len(phone)==cls.phone_number_length and phone.isdigit()
 
